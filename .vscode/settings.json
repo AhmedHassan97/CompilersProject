@@ -2,6 +2,9 @@
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
         "*.l": "c",
-        "*.y": "c"
+        "*.y": "c",
+        "ios": "c",
+        "xiosbase": "c",
+        "string.h": "c"
     }
 }
