@@ -151,57 +151,15 @@ int getSymbolType(char * rID)
 	return -1;
 
 }
-void setFuncArg(int ArgCount, int * ArgTypes, SymbolData * rD)
-{
-	rD->ArrTypes = (int *)malloc(sizeof(int)*ArgCount);
-	int i;
-	for (i = 0; i < ArgCount; i++)
-	{
-		rD->ArrTypes[i] = ArgTypes[i];
-	}
-	rD->IsFunctionSymbol = true;
-	rD->ArgNum = ArgCount;
-
-}
-int checkArgType(int ArgCount, int * ArgTypes, char * rString,int Scope)
-{
-	SymbolNode * rD = getID(rString);
-	if (rD == NULL)return -25;// no Decleared Function with this Name
-	if (rD->DATA->ArgNum!= ArgCount)
-		return 0; //error indicates misArgumentsCount
-	int i;
-	for (i = 0; i < ArgCount; i++)
-	{
-		if (rD->DATA->ArrTypes[i] != ArgTypes[i])
-			return -1;// MisMatchArg
-	}
-	return 1;//Accepted		
-}
-void DeadSymbols(int Brace)
-{
-	SymbolNode * Walker = ListTop;
-	while (Walker)
-	{
-		if  (Walker->DATA->BracesScope == Brace)
-		{
-			Walker->DATA->BracesScope = -1;
-		}
-
-		Walker = Walker->Next;
-	}
-}
 void DestroyList()
 {
 	SymbolNode * Walker = ListTop;
-
 	while (Walker)
 	{
 		SymbolNode *rD = Walker;
 		Walker = Walker->Next;
 		free (rD);
-
 	}
-
 }
 void printUsed(FILE *f)
 {
@@ -211,7 +169,7 @@ void printUsed(FILE *f)
 	{
 		if (Walker->DATA->Used)
 		{
-			fprintf(f, "%s of type %s ScopeNum:%d\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type],Walker->DATA->beforeScope);
+			fprintf(f, "%s of type %s \n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
 			fprintf(f, "%s of type %s\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
 		}
 		Walker = Walker->Next;
@@ -227,8 +185,7 @@ void printNotUsed(FILE *f)
 	{
 		if (!(Walker->DATA->Used))
 		{
-			fprintf(f, "%s of type %s ScopeNum: %d\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type],Walker->DATA->beforeScope);
-			fprintf(f, "%s of type %s\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
+			fprintf(f, "%s of type %s \n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
 		}
 		Walker = Walker->Next;
 	}
@@ -243,8 +200,7 @@ void printInitilized(FILE *f)
 	{
 		if (Walker->DATA->Initilzation)
 		{
-			fprintf(f, "%s of type %s ScopeNum: %d\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type],Walker->DATA->beforeScope);
-			fprintf(f, "%s of type %s\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
+			fprintf(f, "%s of type %s \n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
 		}
 		Walker = Walker->Next;
 	}
@@ -259,8 +215,9 @@ void printNotInit(FILE *f)
 	{
 		if (!(Walker->DATA->Initilzation))
 		{
+			
 			fprintf(f, "%s of type %s\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
-			fprintf(f, "%s of type %s ScopeNum:%d\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type],Walker->DATA->beforeScope);
+			
 		}
 		Walker = Walker->Next;
 	}
@@ -318,145 +275,7 @@ void SetReg(Reg x);
 void ResetReg();
 Reg reg[7];
 char* CurlyBraces[7];
-void ExctractQuad(QuadNode* head,FILE *f)
-{
-	QuadNode*ptr = head;
-	ResetReg();
-	Reg free;
-	Reg Aux;
-	Reg SwitchReg;
-	int CbraceCounterIF=0;
-	while (ptr != NULL)
-	{
-		switch (ptr->DATA->OpCode)
-		{
-		case DECLARE_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg,"NULL");
-			fprintf(f, "MOV %s , %s \n", ptr->DATA->Result,free.reg);
-			if (ptr->DATA->Arg1 == " " && ptr->DATA->Arg2 == " ")
-			{
-				fprintf(f, "MOV %s , %s \n", free.reg,"NULL");
-				fprintf(f, "MOV %s , %s \n", ptr->DATA->Result,free.reg);
-			}
-			else if (ptr->DATA->Arg1 != " ") {
-				fprintf(f, "MOV %s , %s \n", free.reg,ptr->DATA->Arg1);
-				fprintf(f, "MOV %s , %s \n", ptr->DATA->Result, free.reg);
-			//	output.push_back("MOV " + free.reg + "," + (string)ptr->DATA->Arg1);
-			//	output.push_back("MOV " + (string)ptr->DATA->Result + "," + free.var);
-			}
-			else if (ptr->DATA->Arg2 != " ") {
-				fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-				fprintf(f, "MOV %s , %s \n", ptr->DATA->Result, free.reg);
-			//	output.push_back("MOV " + free.reg + "," + (string)ptr->DATA->Arg2);
-			//	output.push_back("MOV " + (string)ptr->DATA->Result + "," + free.var);
-			}
-			free.used++;
-			free.var = ptr->DATA->Result;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case ASSIGN_:
-			free = CheckReg();
-			if (ptr->DATA->Arg1 != " ") {
-				fprintf(f, "MOV %s , %s \n", free.reg,ptr->DATA->Arg1);
-				fprintf(f, "MOV %s , %s \n", ptr->DATA->Result, free.reg);
-			//	output.push_back("MOV " + free.reg + "," + (string)ptr->DATA->Arg1);
-			//	output.push_back("MOV " + (string)ptr->DATA->Result + "," + free.var);
-			}
-			else if (ptr->DATA->Arg2 != " ") {
-				fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-				fprintf(f, "MOV %s , %s \n", ptr->DATA->Result, free.reg);
-			//	output.push_back("MOV " + free.reg + "," + (string)ptr->DATA->Arg2);
-			//	output.push_back("MOV " + (string)ptr->DATA->Result + "," + free.var);
-			}
-			free.used++;
-			free.var = ptr->DATA->Result;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		
-		default:
-			break;
-		}
-	}
-}
-void ResetReg()
-{
-	int i;// for c
-	for ( i = 0; i<7; i++)
-	{
-		Reg x;
-		x.var = "0";
-		x.used = 0;
-		reg[i].used=x.used;
-		reg[i].var=x.var;
-	}
-	reg[0].reg="R0";
-	reg[1].reg="R1";
-	reg[2].reg="R2";
-	reg[3].reg="R3";
-	reg[4].reg="R4";
-	reg[5].reg="R5";
-	reg[6].reg="R6";
-	CurlyBraces[0]="L00";
-	CurlyBraces[1]="L01";
-	CurlyBraces[2]="L02";
-	CurlyBraces[3]="L03";
-	CurlyBraces[4]="L04";
-	CurlyBraces[5]="L05";
-	CurlyBraces[6]="L06";
-	CurlyBraces[7]="L07";
-}
-void SetReg(Reg x)
-{
-	int i;
-	for ( i = 0; i<7; i++)
-	{
-		if (reg[i].reg == x.reg)
-		{
-			reg[i].used = x.used;
-			reg[i].var = x.var;
-		}
-	}
-}
-Reg CheckReg()
-{
-	Reg min = reg[0];
-	if (min.var == "0")
-	{
-		return min;
-	}
-	else
-	{
-		int i;
-		for ( i = 0; i<7; i++)
-		{
-			if (reg[i].var == "0")
-			{
-				return reg[i];
-			}
-			else if (reg[i].used < min.used)
-			{
-				min = reg[i];
-			}
-		}
-		return min;
-	}
-}
 
 
 
 
-/*int main()
-{
-	// -- TEST CASE
-	SymbolData*rP = setSymbol(0, 5, false, 0, "X");
-	pushSymbol(1, rP);
-	pushSymbol(2, rP);
-	pushSymbol(3, rP);
-	pushSymbol(4, rP);
-	getID("Y", 0);
-	FILE *f = fopen("dummy.txt","w");
-	PrintSymbolTable(f); DestroyList();
-}*/

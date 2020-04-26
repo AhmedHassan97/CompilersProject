@@ -251,10 +251,8 @@ void usedIDENTIFIER(char*rName)
 }
 bool checktypeIDENTIFER(int LeftType,int RightType,char* Right)
 {
-
 	bool correct = ((LeftType==RightType))?true:false;  
 	return correct;
-
 }
 void ThrowError(char *Message, char *rVar)
 {
@@ -265,14 +263,14 @@ void ThrowError(char *Message, char *rVar)
  	fprintf(inFile, "line number: %d %s : %s\n", yylineno,Message,rVar);
 	printf("line number: %d %s : %s\n", yylineno,Message,rVar);
 	fclose(outSymbol);
-	 remove("mySymbols.txt");
+	remove("mySymbols.txt");
 	outSymbol = fopen("mySymbols.txt","w");
 	fprintf(outSymbol, "Syntax Error was Found\n");
  	fprintf(outSymbol, "line number: %d %s : %s\n", yylineno,Message,rVar);
  	exit(0);
 };
- int yyerror(char *s) {  int lineno=++yylineno;   fprintf(stderr, "line number : %d %s\n", lineno,s);     return 0; }
-  char * conctanteStr(char* str1,char*str2)
+int yyerror(char *s) {  int lineno=++yylineno;   fprintf(stderr, "line number : %d %s\n", lineno,s);     return 0; }
+char * conctanteStr(char* str1,char*str2)
  {  
       char * str3 = (char *) malloc(1 + strlen(str1)+ strlen(str2) );
       strcpy(str3, str1);	  
@@ -293,7 +291,6 @@ void ThrowError(char *Message, char *rVar)
 		DestroyList();
 		PrintQuadList(TestQuad);
 		QuadNode*R=getTOP();
-		ExctractQuad(R,mCode);
 		// -- TO-DO DestroyQuadList() to free allocated memory .. 
 		fprintf(outFile,"Completed");
 	}
