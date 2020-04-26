@@ -5,6 +5,13 @@
         "*.y": "c",
         "ios": "c",
         "xiosbase": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "memory": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "xmemory0": "c",
+        "xtr1common": "c",
+        "xutility": "c"
     }
 }

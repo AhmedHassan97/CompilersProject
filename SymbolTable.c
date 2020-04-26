@@ -3,20 +3,15 @@
 
 char* idtype[10] = { "Integer", "Float", "Char", "String", "Bool", "ConstIntger", "ConstFloat", "ConstChar", "ConstString", "ConstBool" };
 struct SymbolNode * ListTop = NULL;
-struct SymbolData* setSymbol(int rType, int rValue, bool rUsed, int Scope,char* Identifyier,bool rModifiable,int ScopeNum)
+struct SymbolData* setSymbol(int rType, int rValue, bool rUsed,char* Identifyier)
 {
 	struct SymbolData *data = (struct SymbolData*) malloc(sizeof(struct SymbolData));
 	data->Type = rType;
 	data->Initilzation = rValue;
 	data->Used = rUsed;
-	data->BracesScope = Scope;
 	data->IdentifierName = Identifyier;
-	data->Modifiable=rModifiable;// it can be set automatically 
-	data->BracesScope = ScopeNum;
-	data->beforeScope=ScopeNum;
-	data->IsFunctionSymbol = false;
-	
 
+	
 	return data;
 }
 void pushSymbol(int index, struct SymbolData *data) {
@@ -100,21 +95,20 @@ void setInitilization(int rID)
 	if (!S)
 	S->Initilzation = true;
 }
-SymbolNode *  getID(char * Identifiyer, int rBraceSCope)
+SymbolNode *  getID(char * Identifiyer)
 {
 	SymbolNode * Walker = ListTop;
 	//start from the beginning
 
 	while (Walker)
 	{
-		if ((strcmp(Identifiyer, Walker->DATA->IdentifierName)==0 ) && (Walker->DATA->BracesScope !=-1 ) )
+		if ((strcmp(Identifiyer, Walker->DATA->IdentifierName)==0 ))
 		{
 			return Walker;
 		}
 
 		Walker = Walker->Next;
 	}
-
 	return NULL;
 }
 bool CheckIDENTIFYER(char * ID)
@@ -128,7 +122,6 @@ bool CheckIDENTIFYER(char * ID)
 		{
 			return true;
 		}
-
 		Walker = Walker->Next;
 	}
 
@@ -172,7 +165,7 @@ void setFuncArg(int ArgCount, int * ArgTypes, SymbolData * rD)
 }
 int checkArgType(int ArgCount, int * ArgTypes, char * rString,int Scope)
 {
-	SymbolNode * rD = getID(rString,Scope );
+	SymbolNode * rD = getID(rString);
 	if (rD == NULL)return -25;// no Decleared Function with this Name
 	if (rD->DATA->ArgNum!= ArgCount)
 		return 0; //error indicates misArgumentsCount
@@ -380,313 +373,6 @@ void ExctractQuad(QuadNode* head,FILE *f)
 			free.used++;
 			free.var = ptr->DATA->Result;
 			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case ADD_:
-			// TO DO check if Integar value dont move and add directly
-			free = CheckReg();
-			Aux = free;
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg1);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			fprintf(f, "ADD %s , %s , %s\n", ptr->DATA->Result,Aux.reg, free.reg);// add new REGISTER ! 
-			ptr = ptr->Next;
-			break;
-		case MINUS_:
-			free = CheckReg();
-			Aux = free;
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg1);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			fprintf(f, "SUB %s , %s , %s\n", ptr->DATA->Result,Aux.reg, free.reg);// add new REGISTER ! 
-			ptr = ptr->Next;
-			break;
-		case MULTIPLY_:
-			free = CheckReg();
-			Aux = free;
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg1);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			fprintf(f, "IMUL %s , %s , %s\n", ptr->DATA->Result,Aux.reg, free.reg);// add new REGISTER ! 
-			ptr = ptr->Next;
-			break;
-		case DIVIDE_:
-			fprintf(f, "MOV %s , %s \n", "R0", ptr->DATA->Arg1);
-			free = CheckReg();
-			if(free.reg == "R0")
-				free.reg = "R6";
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-			fprintf(f, "DIV %s \n", free.reg);
-			fprintf(f, "MOV %s , %s \n", ptr->DATA->Result, "R0");
-			ptr = ptr->Next;
-			break;
-		case REM_:
-			free = CheckReg();
-			Aux = free;
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg1);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg2);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			fprintf(f, "REM %s , %s , %s\n", ptr->DATA->Result,Aux.reg, free.reg);// add new REGISTER ! 
-			ptr = ptr->Next;
-			break;
-		case INC_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Result);
-			fprintf(f, "INC %s \n", free.reg);
-			fprintf(f, "MOV %s , %s \n", ptr->DATA->Result,free.reg);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case DEC_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Result);
-			fprintf(f, "DEC %s \n", free.reg);
-			fprintf(f, "MOV %s , %s \n", ptr->DATA->Result,free.reg);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case SWITCH_:
-			free = CheckReg();
-			fprintf(f, "StartCase: \n");
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Result);
-			fprintf(f, "COMPEQVAL %s \n", free.reg);
-			fprintf(f, "JNZ Case \n");
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case CASE_:
-			fprintf(f, "JMP CloseCase \n");
-			free = CheckReg();
-			fprintf(f, "Case: \n");
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Result);
-			fprintf(f, "COMPEQVAL %s \n", free.reg);
-			fprintf(f, "JNZ Case \n");
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case SWITCHDEFAULT_:
-			fprintf(f, "JMP CloseCase \n");
-			fprintf(f, "DefaultCase: \n");
-			ptr = ptr->Next;
-			break;
-		case CLOSESWITCH_:
-			fprintf(f, "CloseSwitch: \n");
-			ptr = ptr->Next;
-			break;
-		case WHILE_:
-			fprintf(f, "%s : \n", ptr->DATA->Result);
-			fprintf(f, "JF %s \n","CloseWhile");
-			ptr = ptr->Next;
-			break;
-		case CLOSEWHILE_:
-			fprintf(f, "JC %s \n", ptr->DATA->Arg2);
-			fprintf(f, "%s : \n",ptr->DATA->Result);
-			ptr = ptr->Next;
-			break;
-		case FOR_:
-			fprintf(f, "%s : \n", ptr->DATA->Result);
-			fprintf(f, "JF %s \n","CloseForLoop");
-			ptr = ptr->Next;
-			break;
-		case CLOSEFORLOOP_:
-			fprintf(f, "JC %s \n", "OpenForLoop");
-			fprintf(f, "JC %s \n", ptr->DATA->Arg2);
-			fprintf(f, "%s : \n",ptr->DATA->Result);
-			ptr = ptr->Next;
-			break;
-		case IF_:
-			fprintf(f, "%s \n", ptr->DATA->Arg2);
-			ptr = ptr->Next;
-			break;
-		case LESSTHAN_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "CMPL %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case GREATERTHAN_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "CMPG %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case LESSTHANOREQUAL_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "CMPLEQ %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case GREATERTHANOREQUAL_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "CMPGEQ %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case EQUALEQUAL_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "CMPEQ %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-			case NOTEQUAL_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "CMPNEQ %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case AND_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "AND %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case ELSE_:
-			fprintf(f, "%s \n", "CloseIf");
-			fprintf(f, "%s \n", "OpenElse");
-			ptr = ptr->Next;
-			break;
-		case CLOSEELSE_:
-			fprintf(f, "%s \n", "CloseElse");
-			ptr = ptr->Next;
-			break;
-		case DOWHILE_:
-			fprintf(f, "%s : \n", ptr->DATA->Result);
-			ptr = ptr->Next;
-			break;
-		case CLOSEDOWHILE_:
-			fprintf(f, "JC %s \n", "OpenDoWhile");
-			ptr = ptr->Next;
-			break;
-		case OR_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			free.used++;
-			free.var = ptr->DATA->Arg1;
-			SetReg(free);
-			Aux = CheckReg();
-			fprintf(f, "MOV %s , %s \n", Aux.reg, ptr->DATA->Arg2);
-			Aux.used++;
-			Aux.var = ptr->DATA->Arg1;
-			SetReg(Aux);
-			fprintf(f, "OR %s, %s , %s \n", ptr->DATA->Result, Aux.reg, free.reg);
-			ptr = ptr->Next;
-			break;
-		case PRINT_:
-			free = CheckReg();
-			fprintf(f, "PRINT %s \n", free.reg);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			SetReg(free);
-			ptr = ptr->Next;
-			break;
-		case NOT_:
-			free = CheckReg();
-			fprintf(f, "MOV %s , %s \n", free.reg, ptr->DATA->Arg1);
-			fprintf(f, "NOT %s \n", free.reg);
-			fprintf(f, "MOV %s , %s \n", ptr->DATA->Result, free.reg);
-			free.used++;
-			free.var = ptr->DATA->Arg2;
-			ptr = ptr->Next;
-			SetReg(free);
-			break;
-		case OPENFUNC_:
-			fprintf(f,"    proc %s \n",ptr->DATA->Arg2);
-			ptr = ptr->Next;
-			break;
-		case CLOSEFUNE_:
-			fprintf(f,"RET\n");
-			ptr = ptr->Next;
-			break;
-		case CALLFUNC_:
-			fprintf(f,"PUSHA\ncall %s\n	POPA \n",ptr->DATA->Arg2);
 			ptr = ptr->Next;
 			break;
 		

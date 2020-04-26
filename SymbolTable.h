@@ -53,10 +53,7 @@ typedef struct SymbolData
 	bool Initilzation;//			indicate the symbol Initilzed a value or not 
 	bool Used;//					indicate used or not as it needed in output 
 	int BracesScope;//				representing the scope number that the variable is decleared
-<<<<<<< HEAD
 	int beforeScope;
-=======
->>>>>>> a6e41fc8727bc90c3db77823228f92a0cb28d599
 	char * Value;//					representing the value of assigned token
 	char * IdentifierName;//		The name of Varible
 	bool Modifiable;//				represent var constant or not 
@@ -72,7 +69,7 @@ typedef struct SymbolNode {
 	struct SymbolNode *Next;
 } SymbolNode;
 //---------------------------------------- Needed Functions with the Linked List------------------
-struct SymbolData* setSymbol(int type, int init, bool used, int brace, char * name,bool Modifiable, int ScopeNum);// Get a Symbol Entity
+struct SymbolData* setSymbol(int type, int init, bool used, char * name);// Get a Symbol Entity
 void pushSymbol(int ID, struct SymbolData* data);// to Insert a node in list
 //struct SymbolNode* getSymbolNODE();// to delete a node in list and return this node
 //int countNODE();// count the number of NODES
@@ -82,7 +79,7 @@ struct SymbolData* getSymbol(int rID);// Return a Symbol Entity given his ID in 
 void setUsed(int rID);
 void setInitilization(int rID);
 
-SymbolNode * getID(char * Identifiyer, int rBraceSCope);// given Variable NAME AND SCOPE return ID
+SymbolNode * getID(char * Identifiyer);// given Variable NAME AND SCOPE return ID
 bool CheckIDENTIFYER(char * ID);//check weather identifuer is defined before or not
 
 int getSymbolType(char*rID);

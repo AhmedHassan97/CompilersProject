@@ -10,18 +10,19 @@
 
 %%	
 ;                       						return SEMICOLON;
+"+"												return PLUS;
+"-"												return MINUS;
 "="												return ASSIGN;
 "bool"				    						return BOOL;
 "int"											return INT;
 "float"											return FLOAT;
 "char"											return CHAR;
 "string"										return STRING;
-"const"                 						return CONST;
 "false"											return FALSE;
 "true"											return TRUE;
 
-[0-9]+											{yylval.ivalue = atoi(yytext); return INTEGER;}
-[0-9]+\.[0-9]+									{yylval.fvalue = atof(yytext); return FLOATNUMBER;}
+[0-9]+											{yylval.IntgerValue = atoi(yytext); return INTEGER;}
+[0-9]+\.[0-9]+									{yylval.FloatValue = atof(yytext); return FLOATNUMBER;}
 \".*\"											{yylval.StringValue=strdup(yytext);return TEXT;} 
 \'.?\'											{yylval.ChValue=strdup(yytext);return CHARACTER;}
 [a-zA-Z][_a-zA-Z0-9]*							{yylval.ID=strdup(yytext);return IDENTIFIER;} 
