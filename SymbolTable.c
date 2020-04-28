@@ -1,63 +1,54 @@
 #include"SymbolTable.h"
 
 
-char* idtype[10] = { "Integer", "Float", "Char", "String", "Bool", "ConstIntger", "ConstFloat", "ConstChar", "ConstString", "ConstBool" };
-struct SymbolNode * ListTop = NULL;
-struct SymbolData* setSymbol(int rType, int rValue, bool rUsed,char* Identifyier)
+char* idtype[5] = { "Integer", "Float", "Char", "String", "Bool"};
+struct SymbolNode * ListHead = NULL;
+struct SymbolData* setSymbol(int rType, int rValue, bool rUsed,char* Identifier)
 {
 	struct SymbolData *data = (struct SymbolData*) malloc(sizeof(struct SymbolData));
 	data->Type = rType;
-	data->Initilzation = rValue;
+	data->Initialized = rValue;
 	data->Used = rUsed;
-	data->IdentifierName = Identifyier;
-
+	data->IdentifierName = Identifier;
 	
 	return data;
 }
-void pushSymbol(int index, struct SymbolData *data) {
+void pushSymbol(int index, struct SymbolData * data) {
 	//--Insert from Begining 
-	struct SymbolNode *mySymbolNode = (struct SymbolNode*) malloc(sizeof(struct SymbolNode));
-	mySymbolNode->ID = index;
-	mySymbolNode->DATA = data;
-	mySymbolNode->Next = ListTop;
-	ListTop = mySymbolNode;
+	struct SymbolNode *SymbolNode = (struct SymbolNode*) malloc(sizeof(struct SymbolNode));
+	SymbolNode->ID = index;
+	SymbolNode->DATA = data;
+	SymbolNode->Next = ListHead;
+	ListHead = SymbolNode;
 }
-/*
-SymbolNode* getSymbolNODE() {
-	if (!ListTop)return NULL;
-	SymbolNode * SymbolPtr = ListTop;
-	// Move The head then
-	ListTop = ListTop->Next;
-	return SymbolPtr;
-}*/
 
 
 int countNODE()
 {
 	int mCount = 0;
-	SymbolNode * Walker = ListTop;
-	while (Walker)
+	SymbolNode * Traveler = ListHead;
+	while (Traveler)
 	{
 		mCount++;
-		Walker = Walker->Next;
+		Traveler = Traveler->Next;
 	}
 	return mCount;
 }
 
 bool isEmpty()
 {
-	return (ListTop == NULL) ? true : false;
+	return (ListHead == NULL) ? true : false;
 }
 
 SymbolData * getSymbol(int rID)
 {
 	int mCount = 0;
-	SymbolNode * Walker = ListTop;
-	while (Walker)
+	SymbolNode * Traveler = ListHead;
+	while (Traveler)
 	{
-		if (Walker->ID == rID)
+		if (Traveler->ID == rID)
 		{
-			return Walker->DATA;
+			return Traveler->DATA;
 		}
 	}
 	return NULL;
@@ -65,18 +56,13 @@ SymbolData * getSymbol(int rID)
 
 void printList(SymbolNode*rHead)
 {
-	// Base case  
+
 	if (rHead == NULL)
 		return;
-
-	// print the list after head node  
 	printList(rHead->Next);
-
-	// After everything else is printed, print head  
-//	cout << rHead->DATA->BracesScope << " ";
 }
 
-void setTOKENNAME(int ID, char * Value)
+void setTokenName(int ID, char * Value)
 {
 	SymbolData*rData = getSymbol(ID);
 	strcpy_s(rData->IdentifierName,sizeof(Value), Value);
@@ -93,36 +79,36 @@ void setInitilization(int rID)
 {
 	SymbolData *S = getSymbol(rID);
 	if (!S)
-	S->Initilzation = true;
+	S->Initialized = true;
 }
 SymbolNode *  getID(char * Identifiyer)
 {
-	SymbolNode * Walker = ListTop;
-	//start from the beginning
+	SymbolNode * Traveler = ListHead;
 
-	while (Walker)
+
+	while (Traveler)
 	{
-		if ((strcmp(Identifiyer, Walker->DATA->IdentifierName)==0 ))
+		if ((strcmp(Identifiyer, Traveler->DATA->IdentifierName)==0 ))
 		{
-			return Walker;
+			return Traveler;
 		}
 
-		Walker = Walker->Next;
+		Traveler = Traveler->Next;
 	}
 	return NULL;
 }
-bool CheckIDENTIFYER(char * ID)
+bool CheckIdentifier(char * ID)
 {
-	SymbolNode * Walker = ListTop;
+	SymbolNode * Traveler = ListHead;
 
 	//start from the beginning
-	while (Walker)
+	while (Traveler)
 	{
-		if (strcmp(ID, Walker->DATA->IdentifierName) == 0)
+		if (strcmp(ID, Traveler->DATA->IdentifierName) == 0)
 		{
 			return true;
 		}
-		Walker = Walker->Next;
+		Traveler = Traveler->Next;
 	}
 
 	return-false;
@@ -130,106 +116,75 @@ bool CheckIDENTIFYER(char * ID)
 }
 void PrintSymbolTable(FILE*F)
 {
-	printUsed(F);
-	printNotUsed(F);
-	printInitilized(F);
-	printNotInit(F);
+	SymbolNode * Traveler = ListHead;
+
+	while (Traveler)
+	{
+		if (Traveler->DATA->Used)
+		{
+			fprintf(F, "%s of type %s is Used \n", Traveler->DATA->IdentifierName, idtype[Traveler->DATA->Type]);
+
+		}
+		if (!(Traveler->DATA->Used))
+		{
+			fprintf(F, "%s of type %s is Unused\n", Traveler->DATA->IdentifierName, idtype[Traveler->DATA->Type]);
+		}
+		Traveler = Traveler->Next;
+	}
+
+	Traveler = ListHead;
+
+	while (Traveler)
+	{
+		if (Traveler->DATA->Initialized)
+		{
+			fprintf(F, "%s of type %s is initialized\n", Traveler->DATA->IdentifierName, idtype[Traveler->DATA->Type]);
+		}
+		if (!(Traveler->DATA->Initialized))
+		{
+			
+			fprintf(F, "%s of type %s is not initialized\n", Traveler->DATA->IdentifierName, idtype[Traveler->DATA->Type]);
+			
+		}
+		Traveler = Traveler->Next;
+	}
+
+	
 	
 }
 int getSymbolType(char * rID)
 {
-	SymbolNode * Walker = ListTop;
-	while (Walker)
+	SymbolNode * Traveler = ListHead;
+	while (Traveler)
 	{
-		if (strcmp(rID, Walker->DATA->IdentifierName) == 0)//&& Walker->DATA->BracesScope <=rBraceSCope)
+		if (strcmp(rID, Traveler->DATA->IdentifierName) == 0)
 		{
-			return Walker->DATA->Type;
+			return Traveler->DATA->Type;
 		}
 
-		Walker = Walker->Next;
+		Traveler = Traveler->Next;
 	}
 	return -1;
 
 }
 void DestroyList()
 {
-	SymbolNode * Walker = ListTop;
-	while (Walker)
+	SymbolNode * Traveler = ListHead;
+	while (Traveler)
 	{
-		SymbolNode *rD = Walker;
-		Walker = Walker->Next;
+		SymbolNode *rD = Traveler;
+		Traveler = Traveler->Next;
 		free (rD);
 	}
 }
-void printUsed(FILE *f)
-{
-	SymbolNode * Walker = ListTop;
-	fprintf(f, "Used Identifiers :- \n");
-	while (Walker)
-	{
-		if (Walker->DATA->Used)
-		{
-			fprintf(f, "%s of type %s \n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
-			fprintf(f, "%s of type %s\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
-		}
-		Walker = Walker->Next;
-	}
 
-	fprintf(f, "\n");
-}
-void printNotUsed(FILE *f)
-{
-	SymbolNode * Walker = ListTop;
-	fprintf(f, "UnUsed Identifiers :- \n");
-	while (Walker)
-	{
-		if (!(Walker->DATA->Used))
-		{
-			fprintf(f, "%s of type %s \n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
-		}
-		Walker = Walker->Next;
-	}
 
-	fprintf(f, "\n");
-}
-void printInitilized(FILE *f)
-{
-	SymbolNode * Walker = ListTop;
-	fprintf(f, "Initilized Identifiers :- \n");
-	while (Walker)
-	{
-		if (Walker->DATA->Initilzation)
-		{
-			fprintf(f, "%s of type %s \n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
-		}
-		Walker = Walker->Next;
-	}
-
-	fprintf(f, "\n");
-}
-void printNotInit(FILE *f)
-{
-	SymbolNode * Walker = ListTop;
-	fprintf(f, "UnInitilized Identifiers :- \n");
-	while (Walker)
-	{
-		if (!(Walker->DATA->Initilzation))
-		{
-			
-			fprintf(f, "%s of type %s\n", Walker->DATA->IdentifierName, idtype[Walker->DATA->Type]);
-			
-		}
-		Walker = Walker->Next;
-	}
-
-	fprintf(f, "\n");
-}
 //-----------------------------------------------------------------------------------------------------
 QuadNode*TopPtr = NULL;
 void setQuad(int Op, char* Arg1, char* Arg2,char*Result,int rID)
 {
 	struct QuadData *data = (struct QuadData*) malloc(sizeof(struct QuadData));
-	data->OpCode = Op;
+	data->operation = Op;
 	data->Arg1 = Arg1;
 	data->Arg2 = Arg2;
 	data->Result = Result;
@@ -247,22 +202,39 @@ void InsertQuadruple(QuadData*rD, int ID)
 	TopPtr->Next = NULL;
 	return;
 	}
-	struct QuadNode *Walker = TopPtr;
-	while (Walker->Next)
-		Walker = Walker->Next;// get last Node
+	struct QuadNode *Traveler = TopPtr;
+	while (Traveler->Next)
+		Traveler = Traveler->Next;// get last Node
 	struct QuadNode *mySymbolNode = (struct QuadNode*) malloc(sizeof(struct QuadNode));
 	mySymbolNode->ID = ID;
 	mySymbolNode->DATA = rD;
 	mySymbolNode->Next = NULL;
-	Walker->Next = mySymbolNode; // insert on end "Queue"
+	Traveler->Next = mySymbolNode; // insert on end "Queue"
 }
 void PrintQuadList(FILE * f)
 {
-	struct QuadNode *Walker = TopPtr;
-	while (Walker)
+	struct QuadNode *Traveler = TopPtr;
+	char* oper;
+	while (Traveler)
 	{
-		fprintf(f, " OpCode: %d  Arg1:%s  Arg2: %s Result:%s \n", Walker->DATA->OpCode, Walker->DATA->Arg1, Walker->DATA->Arg2, Walker->DATA->Result);
-		Walker = Walker->Next;
+		if(Traveler->DATA->operation == 0 )
+		{
+			oper = "declare";
+		}
+		else if(Traveler->DATA->operation == 1 )
+		{
+			oper = "assign";
+		}
+		else if(Traveler->DATA->operation == 2 )
+		{
+			oper = "add";
+		}
+		else if(Traveler->DATA->operation == 3 )
+		{
+			oper = "subtract";
+		}
+		fprintf(f, " operation: %s  first_operand:%s  second_operand: %s result:%s \n", oper, Traveler->DATA->Arg1, Traveler->DATA->Arg2, Traveler->DATA->Result);
+		Traveler = Traveler->Next;
 	}
 }
 //-------------------------------------------------------------------Quad Functions

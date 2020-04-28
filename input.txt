@@ -1,0 +1,3 @@
+int kamel =  5;
+string nader = "nader";
+int amrawy = "5";

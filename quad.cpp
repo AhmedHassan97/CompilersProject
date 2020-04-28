@@ -10,7 +10,7 @@ typedef struct Reg
 }Reg;
 typedef struct QuadData
 {
-	int OpCode;	//					representing the type of the token or Function
+	int operation;	        //representing the type of the token or Function
 	char*Arg1;
 	char*Arg2;
 	char*Result;
@@ -18,7 +18,7 @@ typedef struct QuadData
 }QuadData;
 typedef struct QuadNode {
 	struct QuadData * DATA;
-	int ID;// representing the ID of the Symbol 
+	int ID;				// representing the ID of the Symbol 
 	struct QuadNode *Next;
 } QuadNode;
 
@@ -33,7 +33,7 @@ void ExctractQuad(QuadNode* head)
 	Reg free;
 	while(ptr != NULL)
 	{
-		switch (ptr->DATA->OpCode)
+		switch (ptr->DATA->operation)
 		{
 		case DECLARE:
 			 free = CheckReg();
@@ -108,7 +108,7 @@ int main()
 {
 	QuadNode *p;
 	QuadNode x;
-	x.DATA->OpCode=0;
+	x.DATA->operation=0;
 	x.DATA->Arg1=" ";
 	x.DATA->Result="x";
 	x.DATA->Arg2=" ";
