@@ -1,0 +1,10 @@
+int a;
+int b = 5; 
+string c;
+string d = "d";
+float e;
+float f = 23.0;
+char g;
+char h = 'a';
+Bool i ;
+Bool j = true;

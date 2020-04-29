@@ -16,8 +16,12 @@
 
 	%token PLUS
 	%token MINUS
+	%token DIVIDE
+	%token MULTIPLY
 // Associativity
 	%left ASSIGN
+	%left PLUS MINUS 
+	%left DIVIDE MULTIPLY
 	
 %{ 	
 
@@ -33,7 +37,7 @@
 	int yylineno;
 	int IDCount=0;
 	int QuadCount=0;
-	// int SCOPE_Number=0;
+
 	FILE * outFile;
 	FILE * inFile;
 	FILE *outSymbol;
@@ -46,7 +50,6 @@
 	char* Types[5] = { "Integer", "Float", "Char", "String", "Bool" };
 	bool TempIsUsed=false;
 	int TempCounter=0;
-	char*TempArr[16]={"Temp1","Temp2","Temp3","Temp4","TEMP5","TEMP6","TEMP7","TEMP8","TEMP9","TEMP10","TEMP11","TEMP12","TEMP13","TEMP14","TEMP15","TEMP16"};	
 	%}
 
 
@@ -66,7 +69,7 @@
 %token <ID>     IDENTIFIER
 %type <IntgerValue> type   
 %type <dummy> stmt
-%type <X> EqualGroup expression DataTypes
+%type <X> equalGroup expression DataTypes
 %%
 // All Capital Letters are terminals Tokens else are non terminals 
 compilerstart	: 
@@ -84,7 +87,10 @@ stmt:  type IDENTIFIER SEMICOLON {
 			printf("Declaration\n");
 			setQuad(0," "," ",$2,QuadCount++);
 		}
-
+		|
+		type IDENTIFIER 		{
+													ThrowError("Syntax Error Missing Semicolon","");
+								}
 		| IDENTIFIER ASSIGN expression SEMICOLON
 		{
 
@@ -93,7 +99,9 @@ stmt:  type IDENTIFIER SEMICOLON {
 				getIdentifier($1);
 				printf("Assignment\n");
 				if(TempIsUsed){
-					setQuad(1,TempArr[TempCounter-1]," ",$1,QuadCount++);
+					char str[10];
+					sprintf(str, "%d", TempCounter-1);
+					setQuad(1,conctanteStr("Temp",str)," ",$1,QuadCount++);
 				}
 				else{ 
 					setQuad(1,$3->Value," ",$1,QuadCount++);
@@ -103,9 +111,18 @@ stmt:  type IDENTIFIER SEMICOLON {
 			}
 			else 
 			{
-			ThrowError("Error: Syntax Error"," ");
+				if(getSymbolType($1)==-1)
+				{
+				char*str1=conctanteStr($1," Has No Declread Type ");
+				ThrowError("",str1);
+				}
+				char*str1=conctanteStr($1," of Type");
+
+				char* str2=conctanteStr(str1,Types[getSymbolType($1)]);
+		
+
 			}
-		}          				 
+}          				 
 		| type IDENTIFIER ASSIGN expression	SEMICOLON
 		{
 
@@ -115,7 +132,11 @@ stmt:  type IDENTIFIER SEMICOLON {
 				getIdentifier($2);// setValue here 
 				setQuad(0," "," ",$2,QuadCount++);// Create  first IDENTIFIER
 					if(TempIsUsed)
-						setQuad(1,TempArr[TempCounter-1]," ",$2,QuadCount++);
+{	
+					char str[10];
+					sprintf(str, "%d", TempCounter-1);			
+						setQuad(1,conctanteStr("Temp",str)," ",$2,QuadCount++);
+}
 					else 
 						setQuad(1,$4->Value," ",$2,QuadCount++);
 				printf("Declaration and Assignment\n");
@@ -124,8 +145,10 @@ stmt:  type IDENTIFIER SEMICOLON {
 			}
 			else
 				{
+
 					char*str1=conctanteStr($2," of Type ");
 					char*str2=conctanteStr(str1,Types[getSymbolType($2)]);
+					ThrowError("Error: incompatible types ",str2);
 				}
 			}
 type: INT 	{$$=0;}
@@ -134,8 +157,91 @@ type: INT 	{$$=0;}
 	| STRING{$$=3;}
 	| BOOL	{$$=4;}
 	;	
+
+equalGroup:   FLOATNUMBER                     {
+												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
+												$$->Type=1;				
+												char c[3] = {};
+												sprintf(c,"%f",$1);
+
+													$$->Value=c;
+											   }
+		| INTEGER		                       {
+												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
+												$$->Type=0;					
+												char c[3] = {}; 
+												sprintf(c,"%d",$1);
+												$$->Value=strdup(c);
+											   }
+		| IDENTIFIER                           {$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));$$->Type=getSymbolType($1);$$->Value=$1;usedIDENTIFIER($1);}
+		| equalGroup PLUS	equalGroup        {
+												if($1->Type==$3->Type)
+												{
+													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
+													$$->Type=$1->Type;// the result has the same type 
+													char str[10];
+													sprintf(str, "%d", TempCounter);	
+													$$->Value=conctanteStr("Temp",str);
+													setQuad(2,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
+													TempCounter++;
+													TempIsUsed=true;
+												
+												}
+												else 
+													ThrowError("Conflict dataTypes in Addition \n "," ");
+												}
+		| equalGroup MINUS equalGroup        {
+												if($1->Type==$3->Type)
+												{
+													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
+													$$->Type=$1->Type;// the result has the same type 
+													char str[10];
+													sprintf(str, "%d", TempCounter);
+													$$->Value=conctanteStr("Temp",str);
+													setQuad(3,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
+													TempCounter++;
+													TempIsUsed=true;
+												
+												}
+												else 
+													ThrowError("Conflict data types in Subtraction \n "," ");
+												}
+		| equalGroup MULTIPLY equalGroup     {
+												if($1->Type==$3->Type)
+												{
+													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));// Creating a new instance
+													$$->Type=$1->Type;// the result has the same type 
+													char str[10];
+													sprintf(str, "%d", TempCounter);
+													$$->Value=conctanteStr("Temp",str);// store  the Result in TEMP 
+													setQuad(4,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
+													TempCounter++;
+													TempIsUsed=true;//Tell the Assigment test to Assign the last TEMP 
+												
+												}
+												else 
+													ThrowError("Conflict dataTypes in Multiply \n "," ");
+												}
+		| equalGroup  DIVIDE	equalGroup    
+												{
+												if($1->Type==$3->Type)
+												{
+													if(!($3->Value))ThrowError("Error Dividing by Zero  \n "," ");
+													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));// Creating a new instance
+													$$->Type=$1->Type;// the result has the same type 
+													char str[10];
+													sprintf(str, "%d", TempCounter);
+													$$->Value=conctanteStr("Temp",str);// store  the Result in TEMP 
+													setQuad(5,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
+													TempCounter++;
+													TempIsUsed=true;//Tell the Assigment test to Assign the last TEMP 
+												
+												}
+												else 
+													ThrowError("Conflict dataTypes in Multiply \n "," ");
+												}
 expression:	DataTypes{{$$=$1;}}
-DataTypes:EqualGroup{$$=$1;}
+DataTypes:equalGroup{$$=$1;}
 		| CHARACTER 					{
 											
 												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
@@ -162,48 +268,6 @@ DataTypes:EqualGroup{$$=$1;}
 										}
 		;	
 
-EqualGroup:   FLOATNUMBER                     {
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=1;				
-												char c[3] = {};
-												sprintf(c,"%f",$1);
-
-													$$->Value=c;
-											   }
-		| INTEGER		                       {
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=0;					
-												char c[3] = {}; 
-												sprintf(c,"%d",$1);
-												$$->Value=strdup(c);
-											   }
-		| IDENTIFIER                           {$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));$$->Type=getSymbolType($1);$$->Value=$1;usedIDENTIFIER($1);}
-		| EqualGroup PLUS	EqualGroup        {
-												if($1->Type==$3->Type)
-												{
-													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-													$$->Type=$1->Type;// the result has the same type 
-													$$->Value=TempArr[TempCounter];
-													setQuad(3,$1->Value,$3->Value,TempArr[TempCounter++],QuadCount++);//Generate ADD Quadrable 
-													TempIsUsed=true;
-												
-												}
-												else 
-													ThrowError("Conflict dataTypes in Addition \n "," ");
-												}
-		| EqualGroup MINUS EqualGroup        {
-												if($1->Type==$3->Type)
-												{
-													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-													$$->Type=$1->Type;// the result has the same type 
-													$$->Value=TempArr[TempCounter];
-													setQuad(4,$1->Value,$3->Value,TempArr[TempCounter++],QuadCount++);//Generate ADD Quadrable 
-													TempIsUsed=true;
-												
-												}
-												else 
-													ThrowError("Conflict dataTypes in Subtraction \n "," ");
-												}
 
 // GENERATE  QUAD HERE 
 %% 
@@ -252,16 +316,16 @@ bool CheckTypeIdentifier(int LeftType,int RightType,char* Right)
 void ThrowError(char *Message, char *rVar)
 {
 	fclose(inFile);
-	inFile = fopen("output.txt","w");
-	fprintf(inFile, "Syntax Error Could not parse quadruples\n");
+	inFile = fopen("output.txt","a");
+
  	fprintf(inFile, "line number: %d %s : %s\n", yylineno,Message,rVar);
 	printf("line number: %d %s : %s\n", yylineno,Message,rVar);
 	fclose(outSymbol);
-	remove("Symbols.txt");
-	outSymbol = fopen("Symbols.txt","w");
-	fprintf(outSymbol, "Syntax Error was Found\n");
+	remove("symbols.txt");
+	outSymbol = fopen("symbols.txt","w");
+	fprintf(outSymbol, " Error was Found\n");
  	fprintf(outSymbol, "line number: %d %s : %s\n", yylineno,Message,rVar);
- 	exit(0);
+
 };
 int yyerror(char *s) {  int lineno=++yylineno;   fprintf(stderr, "line number : %d %s\n", lineno,s);     return 0; }
 char * conctanteStr(char* str1,char*str2)

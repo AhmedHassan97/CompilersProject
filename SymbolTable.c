@@ -233,6 +233,14 @@ void PrintQuadList(FILE * f)
 		{
 			oper = "subtract";
 		}
+		else if(Traveler->DATA->operation == 4 )
+		{
+			oper = "multiply";
+		}
+		else if(Traveler->DATA->operation == 5 )
+		{
+			oper = "divide";
+		}
 		fprintf(f, " operation: %s  first_operand:%s  second_operand: %s result:%s \n", oper, Traveler->DATA->Arg1, Traveler->DATA->Arg2, Traveler->DATA->Result);
 		Traveler = Traveler->Next;
 	}

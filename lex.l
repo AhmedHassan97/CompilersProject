@@ -10,6 +10,8 @@
 
 %%	
 ;                       						return SEMICOLON;
+"*"												return MULTIPLY;
+"/"												return DIVIDE;
 "+"												return PLUS;
 "-"												return MINUS;
 "="												return ASSIGN;
