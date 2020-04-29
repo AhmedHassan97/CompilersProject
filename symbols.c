@@ -1,19 +1,19 @@
-#include"SymbolTable.h"
+#include"symbols.h"
 
 
 char* idtype[5] = { "Integer", "Float", "Char", "String", "Bool"};
 struct SymbolNode * ListHead = NULL;
-struct SymbolData* setSymbol(int rType, int rValue, bool rUsed,char* Identifier)
+struct SymbolData* SetSymbol(int Type, int Value, bool Used,char* Identifier)
 {
 	struct SymbolData *data = (struct SymbolData*) malloc(sizeof(struct SymbolData));
-	data->Type = rType;
-	data->Initialized = rValue;
-	data->Used = rUsed;
+	data->Type = Type;
+	data->Initialized = Value;
+	data->Used = Used;
 	data->IdentifierName = Identifier;
 	
 	return data;
 }
-void pushSymbol(int index, struct SymbolData * data) {
+void PushSymbol(int index, struct SymbolData * data) {
 	//--Insert from Begining 
 	struct SymbolNode *SymbolNode = (struct SymbolNode*) malloc(sizeof(struct SymbolNode));
 	SymbolNode->ID = index;
@@ -40,13 +40,13 @@ bool isEmpty()
 	return (ListHead == NULL) ? true : false;
 }
 
-SymbolData * getSymbol(int rID)
+SymbolData * GetSymbol(int ID)
 {
 	int mCount = 0;
 	SymbolNode * Traveler = ListHead;
 	while (Traveler)
 	{
-		if (Traveler->ID == rID)
+		if (Traveler->ID == ID)
 		{
 			return Traveler->DATA;
 		}
@@ -54,41 +54,41 @@ SymbolData * getSymbol(int rID)
 	return NULL;
 }
 
-void printList(SymbolNode*rHead)
+void PrintList(SymbolNode*Head)
 {
 
-	if (rHead == NULL)
+	if (Head == NULL)
 		return;
-	printList(rHead->Next);
+	PrintList(Head->Next);
 }
 
-void setTokenName(int ID, char * Value)
+void SetTokenName(int ID, char * Value)
 {
-	SymbolData*rData = getSymbol(ID);
-	strcpy_s(rData->IdentifierName,sizeof(Value), Value);
+	SymbolData*Data = GetSymbol(ID);
+	strcpy(Data->IdentifierName,Value);
 }
 
-void setUsed(int rID)
+void SetUsed(int ID)
 {
-	SymbolData *S = getSymbol(rID);
+	SymbolData *S = GetSymbol(ID);
 	if (!S)
 	S->Used = true;
 }
 
-void setInitilization(int rID)
+void SetInitialized(int ID)
 {
-	SymbolData *S = getSymbol(rID);
+	SymbolData *S = GetSymbol(ID);
 	if (!S)
 	S->Initialized = true;
 }
-SymbolNode *  getID(char * Identifiyer)
+SymbolNode *  GetID(char * Identifier)
 {
 	SymbolNode * Traveler = ListHead;
 
 
 	while (Traveler)
 	{
-		if ((strcmp(Identifiyer, Traveler->DATA->IdentifierName)==0 ))
+		if ((strcmp(Identifier, Traveler->DATA->IdentifierName)==0 ))
 		{
 			return Traveler;
 		}
@@ -152,12 +152,12 @@ void PrintSymbolTable(FILE*F)
 	
 	
 }
-int getSymbolType(char * rID)
+int GetSymbolType(char * ID)
 {
 	SymbolNode * Traveler = ListHead;
 	while (Traveler)
 	{
-		if (strcmp(rID, Traveler->DATA->IdentifierName) == 0)
+		if (strcmp(ID, Traveler->DATA->IdentifierName) == 0)
 		{
 			return Traveler->DATA->Type;
 		}
@@ -172,33 +172,33 @@ void DestroyList()
 	SymbolNode * Traveler = ListHead;
 	while (Traveler)
 	{
-		SymbolNode *rD = Traveler;
+		SymbolNode *D = Traveler;
 		Traveler = Traveler->Next;
-		free (rD);
+		free (D);
 	}
 }
 
 
 //-----------------------------------------------------------------------------------------------------
 QuadNode*TopPtr = NULL;
-void setQuad(int Op, char* Arg1, char* Arg2,char*Result,int rID)
+void SetQuadriple(int Op, char* Arg1, char* Arg2,char*Result,int ID)
 {
 	struct QuadData *data = (struct QuadData*) malloc(sizeof(struct QuadData));
 	data->operation = Op;
 	data->Arg1 = Arg1;
 	data->Arg2 = Arg2;
 	data->Result = Result;
-	InsertQuadruple(data, rID); // insert in list 
+	InsertQuadruple(data, ID); // insert in list 
 	return ;
 }
-void InsertQuadruple(QuadData*rD, int ID)
+void InsertQuadruple(QuadData*D, int ID)
 {
 	if (!TopPtr)
 	{
 	struct QuadNode *mySymbolNode = (struct QuadNode*) malloc(sizeof(struct QuadNode));
 	TopPtr = mySymbolNode;
 	mySymbolNode->ID = ID;
-	mySymbolNode->DATA = rD;
+	mySymbolNode->DATA = D;
 	TopPtr->Next = NULL;
 	return;
 	}
@@ -207,7 +207,7 @@ void InsertQuadruple(QuadData*rD, int ID)
 		Traveler = Traveler->Next;// get last Node
 	struct QuadNode *mySymbolNode = (struct QuadNode*) malloc(sizeof(struct QuadNode));
 	mySymbolNode->ID = ID;
-	mySymbolNode->DATA = rD;
+	mySymbolNode->DATA = D;
 	mySymbolNode->Next = NULL;
 	Traveler->Next = mySymbolNode; // insert on end "Queue"
 }
@@ -246,7 +246,7 @@ void PrintQuadList(FILE * f)
 	}
 }
 //-------------------------------------------------------------------Quad Functions
-QuadNode*getTOP()
+QuadNode*GetTOP()
 {
 	return TopPtr;
 }
@@ -254,7 +254,7 @@ Reg CheckReg();
 void SetReg(Reg x);
 void ResetReg();
 Reg reg[7];
-char* CurlyBraces[7];
+
 
 
 

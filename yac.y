@@ -1,360 +1,475 @@
 %start compilerstart
-// Token for Semicolon
-	%token SEMICOLON
-// Tokens for assign
-	%token ASSIGN
 
-// Tokens for dataTypes
-	%token BOOL
-	%token INT
-	%token FLOAT
-	%token CHAR
-	%token STRING
-// Tokens for booleans
-	%token FALSE
-	%token TRUE
+// Semi colon token
+%token SEMICOLON
 
-	%token PLUS
-	%token MINUS
-	%token DIVIDE
-	%token MULTIPLY
+// Arethmetic operations tokens
+%token PLUS
+%token MINUS
+%token DIVIDE
+%token MULTIPLY
+
+// Assign token
+%token ASSIGN
+
+// Type identifiers tokens
+%token BOOL
+%token INT
+%token FLOAT
+%token CHAR
+%token STRING
+
+// Boolean tokens
+%token FALSE
+%token TRUE
+
 // Associativity
-	%left ASSIGN
-	%left PLUS MINUS 
-	%left DIVIDE MULTIPLY
-	
+%left ASSIGN
+%left PLUS MINUS 
+%left DIVIDE MULTIPLY
+
+
 %{ 	
 
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <stdarg.h>
 	#include <string.h>	
-	#include"SymbolTable.h"
-    // for the error
+	#include"symbols.h"
+    
+    // Used to tokenize (yylex) and find errors (yyerror)
 	int yyerror(char *);
 	int yylex(void);
-    // for the number of lines 
+
+    // Keeps count of lines 
 	int yylineno;
-	int IDCount=0;
-	int QuadCount=0;
 
-	FILE * outFile;
-	FILE * inFile;
-	FILE *outSymbol;
-	void ThrowError(char *Message, char *rVar);							
-	void CreateID(int type , char*rName,int rID);					
-	void  getIdentifier(char*rName);								
-	void usedIDENTIFIER(char*rName );					   				
-	char * conctanteStr(char* str1,char*str2);						
-	bool CheckTypeIdentifier(int LeftType,int RightType,char* Right);	
-	char* Types[5] = { "Integer", "Float", "Char", "String", "Bool" };
-	bool TempIsUsed=false;
-	int TempCounter=0;
-	%}
+    // Identifier and quadriples count in the parsed file
+	int IdentifiersCount=0;
+	int QuadriplesCount=0;
 
+    // Files that will be used in the compiler
+	FILE * WriteFile;
+	FILE * ReadFile;
+	FILE * SymbolsFile;
 
-	%union {
-    int IntgerValue;                 /* integer value */
-	float FloatValue;               /* float Value */
-    char * StringValue;              /* string value */
-	char * ChValue;               /* character value */
-	char * ID ;                    /*IDENTIFIER Value */
-	int* dummy;
-	struct TypeAndValue * X;
-};
-%token <IntgerValue> INTEGER 
-%token <FloatValue> FLOATNUMBER 
-%token <StringValue> TEXT 
-%token <ChValue> CHARACTER 
-%token <ID>     IDENTIFIER
-%type <IntgerValue> type   
-%type <dummy> stmt
-%type <X> equalGroup expression DataTypes
-%%
-// All Capital Letters are terminals Tokens else are non terminals 
-compilerstart	: 
-		startProgram
-		;
+    // A function that prints error message in file and on console
+	void ThrowError(char *Message1, char *Message2);							
 	
-startProgram : startProgram stmt  
-		|
-		;
-		
-stmt:  type IDENTIFIER SEMICOLON {
+    // A function that creates indentifier
+    void CreateIdentifier(int Type , char*Name,int ID);
 
-			// 1 type // 2 Identifier 
-			CreateID($1,$2,IDCount++);
-			printf("Declaration\n");
-			setQuad(0," "," ",$2,QuadCount++);
-		}
-		|
-		type IDENTIFIER 		{
-													ThrowError("Syntax Error Missing Semicolon","");
-								}
-		| IDENTIFIER ASSIGN expression SEMICOLON
-		{
+    // A function that gets identifier by Name					
+	void  GetIdentifier(char*Name);		
 
-			if(getSymbolType($1)==$3->Type)
-			{
-				getIdentifier($1);
-				printf("Assignment\n");
-				if(TempIsUsed){
-					char str[10];
-					sprintf(str, "%d", TempCounter-1);
-					setQuad(1,conctanteStr("Temp",str)," ",$1,QuadCount++);
-				}
-				else{ 
-					setQuad(1,$3->Value," ",$1,QuadCount++);
-				}
-				TempCounter=0;
-				TempIsUsed=false;
-			}
-			else 
-			{
-				if(getSymbolType($1)==-1)
-				{
-				char*str1=conctanteStr($1," Has No Declread Type ");
-				ThrowError("",str1);
-				}
-				char*str1=conctanteStr($1," of Type");
+    // A function that uses an identifier and throws error if necessary					
+	void UseIdentifier(char*Name );					   	
 
-				char* str2=conctanteStr(str1,Types[getSymbolType($1)]);
-		
+    // A function that merges 2 strings and return the merged string
+	char * MergeStrings(char* string1,char*string2);						
+	
+    // A function that checks type matching
+    bool CheckTypeIdentifier(int LeftType,int RightType);	
+	
+    // An array that holds all types of supported type identifiers
+    char* Types[5] = { "Integer", "Float", "Char", "String", "Bool" };
+    
+    // A bool to mark usage of extra space
+	bool Extra=false;
 
-			}
-}          				 
-		| type IDENTIFIER ASSIGN expression	SEMICOLON
-		{
-
-			CreateID($1,$2,IDCount++);
-			if(CheckTypeIdentifier(getSymbolType($2),$4->Type,$2))
-			{
-				getIdentifier($2);// setValue here 
-				setQuad(0," "," ",$2,QuadCount++);// Create  first IDENTIFIER
-					if(TempIsUsed)
-{	
-					char str[10];
-					sprintf(str, "%d", TempCounter-1);			
-						setQuad(1,conctanteStr("Temp",str)," ",$2,QuadCount++);
-}
-					else 
-						setQuad(1,$4->Value," ",$2,QuadCount++);
-				printf("Declaration and Assignment\n");
-						TempCounter=0;
-						TempIsUsed=false;
-			}
-			else
-				{
-
-					char*str1=conctanteStr($2," of Type ");
-					char*str2=conctanteStr(str1,Types[getSymbolType($2)]);
-					ThrowError("Error: incompatible types ",str2);
-				}
-			}
-type: INT 	{$$=0;}
-	| FLOAT {$$=1;}
-	| CHAR  {$$=2;}
-	| STRING{$$=3;}
-	| BOOL	{$$=4;}
-	;	
-
-equalGroup:   FLOATNUMBER                     {
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=1;				
-												char c[3] = {};
-												sprintf(c,"%f",$1);
-
-													$$->Value=c;
-											   }
-		| INTEGER		                       {
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=0;					
-												char c[3] = {}; 
-												sprintf(c,"%d",$1);
-												$$->Value=strdup(c);
-											   }
-		| IDENTIFIER                           {$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));$$->Type=getSymbolType($1);$$->Value=$1;usedIDENTIFIER($1);}
-		| equalGroup PLUS	equalGroup        {
-												if($1->Type==$3->Type)
-												{
-													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-													$$->Type=$1->Type;// the result has the same type 
-													char str[10];
-													sprintf(str, "%d", TempCounter);	
-													$$->Value=conctanteStr("Temp",str);
-													setQuad(2,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
-													TempCounter++;
-													TempIsUsed=true;
-												
-												}
-												else 
-													ThrowError("Conflict dataTypes in Addition \n "," ");
-												}
-		| equalGroup MINUS equalGroup        {
-												if($1->Type==$3->Type)
-												{
-													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-													$$->Type=$1->Type;// the result has the same type 
-													char str[10];
-													sprintf(str, "%d", TempCounter);
-													$$->Value=conctanteStr("Temp",str);
-													setQuad(3,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
-													TempCounter++;
-													TempIsUsed=true;
-												
-												}
-												else 
-													ThrowError("Conflict data types in Subtraction \n "," ");
-												}
-		| equalGroup MULTIPLY equalGroup     {
-												if($1->Type==$3->Type)
-												{
-													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));// Creating a new instance
-													$$->Type=$1->Type;// the result has the same type 
-													char str[10];
-													sprintf(str, "%d", TempCounter);
-													$$->Value=conctanteStr("Temp",str);// store  the Result in TEMP 
-													setQuad(4,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
-													TempCounter++;
-													TempIsUsed=true;//Tell the Assigment test to Assign the last TEMP 
-												
-												}
-												else 
-													ThrowError("Conflict dataTypes in Multiply \n "," ");
-												}
-		| equalGroup  DIVIDE	equalGroup    
-												{
-												if($1->Type==$3->Type)
-												{
-													if(!($3->Value))ThrowError("Error Dividing by Zero  \n "," ");
-													$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));// Creating a new instance
-													$$->Type=$1->Type;// the result has the same type 
-													char str[10];
-													sprintf(str, "%d", TempCounter);
-													$$->Value=conctanteStr("Temp",str);// store  the Result in TEMP 
-													setQuad(5,$1->Value,$3->Value,conctanteStr("Temp",str),QuadCount++);//Generate ADD Quadrable 
-													TempCounter++;
-													TempIsUsed=true;//Tell the Assigment test to Assign the last TEMP 
-												
-												}
-												else 
-													ThrowError("Conflict dataTypes in Multiply \n "," ");
-												}
-expression:	DataTypes{{$$=$1;}}
-DataTypes:equalGroup{$$=$1;}
-		| CHARACTER 					{
-											
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=2;					
-												$$->Value=strdup($1);
-										}
-		| FALSE 						{
-											
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=4;					
-												$$->Value=strdup("FALSE");
-										}
-	    | TRUE							{
-											
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=4;					
-												$$->Value=strdup("TRUE");
-										}
-		| TEXT 							{
-											
-												$$=(struct TypeAndValue*) malloc(sizeof(struct TypeAndValue));
-												$$->Type=3;					
-												$$->Value=strdup($1);
-										}
-		;	
+    // A counter of how many extra space are used
+	int ExtraCounter=0;
+%}
 
 
-// GENERATE  QUAD HERE 
-%% 
-void CreateID(int type , char*rName,int rID)
+%union
 {
-	// checks if the identifier is repeated or not 
-	if(CheckIdentifier(rName))
-	ThrowError("Already Declared IDENTIFIER with Name ",rName);
+    int IntValue;                
+    float FloatValue;             
+    char * StringValue;           
+    char * CharValue;              
+    char * Identifier ;                 
+    int* Statement;
+    struct Complex * Complex;
+};
 
+%token <IntValue>       INTEGER 
+%token <FloatValue>     FLOATNUMBER 
+%token <StringValue>    TEXT 
+%token <CharValue>      CHARACTER 
+%token <Identifier>     IDENTIFIER
+
+%type <IntValue> type   
+%type <Statement> statement
+%type <Complex> sametype expression datatypes
+
+%%
+
+    
+    compilerstart:  startcode    ;
+
+
+    startcode:   startcode statement  
+
+                    |   ;
+
+    statement:  type IDENTIFIER SEMICOLON            
+                {
+
+                    // $1 type // $2 Identifier 
+                    CreateIdentifier($1,$2,IdentifiersCount++);
+                    printf("Declaration \n");
+                    SetQuadriple(0," "," ",$2,QuadriplesCount++);
+                }
+
+                |   type IDENTIFIER                 
+                {
+                    ThrowError(" Missing Semicolon","");
+                }         
+
+                |   IDENTIFIER ASSIGN expression SEMICOLON
+                {
+
+                    if(GetSymbolType($1)==$3->Type)
+                    {
+                        GetIdentifier($1);
+                        printf("Assignment\n");
+                        
+                        if(Extra)
+                        {
+                            char str[10];
+                            sprintf(str, "%d", ExtraCounter-1);
+                            SetQuadriple(1,MergeStrings("ExtraSpace",str)," ",$1,QuadriplesCount++);
+                        }
+                        else
+                        { 
+                            SetQuadriple(1,$3->Value," ",$1,QuadriplesCount++);
+                        }
+                        Extra=0;
+                        Extra=false;
+                    }
+                    else 
+                    {
+                        if(GetSymbolType($1)==-1)
+                        {
+                            char*str1=MergeStrings($1,"Is not a c type");
+                            ThrowError("",str1);
+                        }
+                    }
+                }     
+
+                |   type IDENTIFIER ASSIGN expression	SEMICOLON
+		        {
+
+                    CreateIdentifier($1,$2,IdentifiersCount++);
+                    if(CheckTypeIdentifier(GetSymbolType($2),$4->Type))
+                    {
+                        GetIdentifier($2);
+                        SetQuadriple(0," "," ",$2,QuadriplesCount++);
+                        if(Extra)
+                        {	
+                            char str[10];
+                            sprintf(str, "%d", ExtraCounter-1);			
+                            SetQuadriple(1,MergeStrings("ExtraSpace",str)," ",$2,QuadriplesCount++);
+                        }
+                        else 
+                        { 
+                            SetQuadriple(1,$4->Value," ",$2,QuadriplesCount++);
+                        }
+                        
+                        printf("Declaration and Assignment\n");
+                        ExtraCounter=0;
+                        Extra=false;
+                    }
+                    else
+                    {
+                        char*str1=MergeStrings($2," is of type ");
+                        char*str2=MergeStrings(str1,Types[GetSymbolType($2)]);
+                        ThrowError("type mismatch ",str2);
+                    }
+			    }
+
+                ;
+
+    type:   INT 	
+            {
+                $$=0;
+            }
+	        
+            | FLOAT 
+            {
+                $$=1;
+            }
+	
+            | CHAR  
+            {
+                $$=2;
+            }
+	        
+            | STRING
+            {
+                $$=3;
+            }
+	
+            | BOOL	
+            {
+                $$=4;
+            }
+        	;	
+    sametype: FLOATNUMBER                    
+                {
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=1;				
+                    char c[3] = {};
+                    sprintf(c,"%f",$1);
+                    $$->Value=c;
+                }
+
+                | INTEGER		                      
+                {
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=0;					
+                    char c[3] = {}; 
+                    sprintf(c,"%d",$1);
+                    $$->Value=strdup(c);
+                }
+
+                | IDENTIFIER         
+                {
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=GetSymbolType($1);
+                    $$->Value=$1;
+                    UseIdentifier($1);
+                }
+
+                | sametype PLUS	sametype   
+                {
+                    if($1->Type==$3->Type)
+                    {
+                        $$=(struct Complex*) malloc(sizeof(struct Complex));
+                        $$->Type=$1->Type;
+                        char str[10];
+                        sprintf(str, "%d", ExtraCounter);	
+                        $$->Value=MergeStrings("ExtraSpace",str);
+                        SetQuadriple(2,$1->Value,$3->Value,MergeStrings("ExtraSpace",str),QuadriplesCount++);
+                        ExtraCounter++;
+                        Extra=true;
+                    
+                    }
+                    else 
+                    {
+                        ThrowError("type mismatch in "," addition operands ");
+                    }
+                }
+
+                | sametype MINUS sametype   
+                {
+                    if($1->Type==$3->Type)
+                    {
+                        $$=(struct Complex*) malloc(sizeof(struct Complex));
+                        $$->Type=$1->Type;
+                        char str[10];
+                        sprintf(str, "%d", ExtraCounter);	
+                        $$->Value=MergeStrings("ExtraSpace",str);
+                        SetQuadriple(3,$1->Value,$3->Value,MergeStrings("ExtraSpace",str),QuadriplesCount++);
+                        ExtraCounter++;
+                        Extra=true;
+                    
+                    }
+                    else 
+                    {
+                        ThrowError("type mismatch in "," subtracion operands ");
+                    }
+                }
+
+                | sametype MULTIPLY sametype   
+                {
+                    if($1->Type==$3->Type)
+                    {
+                        $$=(struct Complex*) malloc(sizeof(struct Complex));
+                        $$->Type=$1->Type;
+                        char str[10];
+                        sprintf(str, "%d", ExtraCounter);	
+                        $$->Value=MergeStrings("ExtraSpace",str);
+                        SetQuadriple(4,$1->Value,$3->Value,MergeStrings("ExtraSpace",str),QuadriplesCount++);
+                        ExtraCounter++;
+                        Extra=true;
+                    
+                    }
+                    else 
+                    {
+                        ThrowError("type mismatch in "," multiplication operands ");
+                    }
+                }
+                
+                | sametype DIVIDE sametype   
+                {
+                    if($1->Type==$3->Type)
+                    {
+                        $$=(struct Complex*) malloc(sizeof(struct Complex));
+                        $$->Type=$1->Type;
+                        char str[10];
+                        sprintf(str, "%d", ExtraCounter);	
+                        $$->Value=MergeStrings("ExtraSpace",str);
+                        SetQuadriple(5,$1->Value,$3->Value,MergeStrings("ExtraSpace",str),QuadriplesCount++);
+                        ExtraCounter++;
+                        Extra=true;
+                    
+                    }
+                    else 
+                    {
+                        ThrowError("type mismatch in "," division operands ");
+                    }
+                }
+                ;
+
+    expression: datatypes
+                {
+                        $$=$1;
+                }
+                ;
+
+    datatypes:  sametype
+                {
+                    $$=$1;
+                }
+
+		        | CHARACTER 			
+                {
+                
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=2;					
+                    $$->Value=strdup($1);
+                }
+
+                | FALSE 						
+                {										
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=4;					
+                    $$->Value=strdup("FALSE");
+                }
+
+                | TRUE
+                {							
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=4;					
+                    $$->Value=strdup("TRUE");
+                }
+                	
+                | TEXT 					
+                {            
+                    $$=(struct Complex*) malloc(sizeof(struct Complex));
+                    $$->Type=3;					
+                    $$->Value=strdup($1);
+                }
+                ;
+
+%%
+
+
+void CreateIdentifier(int type , char*Name,int ID)
+{
+
+	if(CheckIdentifier(Name))
+	{
+        ThrowError("Already declared identifier ",Name);
+    }
 	else
 	{
-		SymbolData* rSymbol=setSymbol(type,0,false,rName);
-		pushSymbol(rID,rSymbol);
-		printf("Symbol is created with Name %s \n",rName);
+		SymbolData* Symbol=SetSymbol(type,0,false,Name);
+		PushSymbol(ID,Symbol);
+		printf("Symbol is created :  %s \n",Name);
 	}
 }
-// check if the identifier exist in the linked list (Sympol table)
-void getIdentifier(char*rName)
-{
-	SymbolNode * rSymbol=getID(rName);
-	if(!rSymbol)
 
-	ThrowError("Not Declared Identifier with Name \n ",rName);
+void GetIdentifier(char*Name)
+{
+	SymbolNode * Symbol = GetID(Name);
+	if(!Symbol)
+    {
+	    ThrowError("Not declared identifier : ",Name);
+    }
+    else
+	{
+		Symbol->DATA->Initialized=true;
+	}
+}
+
+void UseIdentifier(char*Name)
+{
+	SymbolNode * Symbol= GetID(Name);
+	if(!Symbol)
+	ThrowError("Not declared identifier : ",Name);
 	else
 	{
-		rSymbol->DATA->Initialized=true;
+		printf("Identifier  %s  is Used \n",Name);
+		if(!Symbol->DATA->Initialized)
+        {
+            ThrowError("","Uninitialized variable used");
+        }
+        Symbol->DATA->Used=true;
 	}
 }
-void usedIDENTIFIER(char*rName)
-{
-	SymbolNode * rSymbol=getID(rName);
-	if(!rSymbol)
-	ThrowError("Not Declared Identifier with Name \n ",rName);
-	else
-	{
-		printf("IDENTIFIER with Name is Used %s \n",rName);
-		if(!rSymbol->DATA->Initialized)printf("Warning :IDENTIFIER with Name %s is not Initilized and is being used.  \n",rName);// don't quit just a warning
-		rSymbol->DATA->Used=true;
-	}
-}
-bool CheckTypeIdentifier(int LeftType,int RightType,char* Right)
-{
-	bool correct = ((LeftType==RightType))?true:false;  
-	return correct;
-}
-void ThrowError(char *Message, char *rVar)
-{
-	fclose(inFile);
-	inFile = fopen("output.txt","a");
 
- 	fprintf(inFile, "line number: %d %s : %s\n", yylineno,Message,rVar);
-	printf("line number: %d %s : %s\n", yylineno,Message,rVar);
-	fclose(outSymbol);
-	remove("symbols.txt");
-	outSymbol = fopen("symbols.txt","w");
-	fprintf(outSymbol, " Error was Found\n");
- 	fprintf(outSymbol, "line number: %d %s : %s\n", yylineno,Message,rVar);
+bool CheckTypeIdentifier(int LeftType,int RightType)
+{
+	return (((LeftType==RightType))?true:false);
+}
+
+void ThrowError(char *Message1, char *Message2)
+{
+	fclose(ReadFile);
+	ReadFile = fopen("output.txt","a");
+ 	fprintf(ReadFile, "line number: %d %s : %s\n", yylineno,Message1,Message2);
+	printf("line number: %d %s : %s\n", yylineno,Message1,Message2);
 
 };
-int yyerror(char *s) {  int lineno=++yylineno;   fprintf(stderr, "line number : %d %s\n", lineno,s);     return 0; }
-char * conctanteStr(char* str1,char*str2)
- {  
-      char * str3 = (char *) malloc(1 + strlen(str1)+ strlen(str2) );
-      strcpy(str3, str1);	  
-      strcat(str3, str2);
-	return str3;
- 
- }
+
+int yyerror(char *s) 
+{  
+    int lineno=++yylineno;
+    fprintf(stderr, "line number : %d %s\n", lineno,s);  
+    return 0;
+}
+
+char * MergeStrings(char* string1,char*string2)
+{  
+      char * string3 = (char *) malloc(1 + strlen(string1)+ strlen(string2) );
+      strcpy(string3, string1);	  
+      strcat(string3, string2);
+	return string3;
+}
+
  int main(void) {
 	
 
-	outFile=fopen("output.txt","w");
-	FILE *TestQuad=fopen("quadraples.txt","w");
-	outSymbol=fopen("symbols.txt","w");
+
+	FILE * TestQuad=fopen("quadraples.txt","w");
+	SymbolsFile=fopen("symbols.txt","w");
 	if(!yyparse()) {
 		printf("\nParsing complete\n");
-		PrintSymbolTable(outSymbol);
+		PrintSymbolTable(SymbolsFile);
 		DestroyList();
 		PrintQuadList(TestQuad);
-		QuadNode*R=getTOP();
-		fprintf(outFile,"Completed");
+		QuadNode*R=GetTOP();
+        fclose(WriteFile);
+        fclose(SymbolsFile);
+        fclose(TestQuad);
+        fclose(ReadFile);
+        return 0;
 	}
 	else {
 		printf("\nParsing failed\n %d",yylineno);
+        PrintSymbolTable(SymbolsFile);
+		DestroyList();
+		PrintQuadList(TestQuad);
+		QuadNode*R=GetTOP();
+        fclose(WriteFile);
+        fclose(SymbolsFile);
+        fclose(TestQuad);
+        fclose(ReadFile);
 		return 0;
 	}
-	fclose(inFile);
-	fclose(outFile);
+
     return 0;
 }

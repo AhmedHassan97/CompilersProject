@@ -6,5 +6,5 @@ float e;
 float f = 23.0;
 char g;
 char h = 'a';
-Bool i ;
-Bool j = true;
+bool i ;
+bool j = true;

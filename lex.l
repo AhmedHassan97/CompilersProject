@@ -1,3 +1,5 @@
+/* Standard c includes need + yacc files */
+
 %{   
 	#include <stdlib.h>
 	#include <stdio.h>
@@ -8,6 +10,7 @@
 	int yylex();
 %}
 
+/* Tokens for the mock c language */
 %%	
 ;                       						return SEMICOLON;
 "*"												return MULTIPLY;
@@ -23,15 +26,20 @@
 "false"											return FALSE;
 "true"											return TRUE;
 
-[0-9]+											{yylval.IntgerValue = atoi(yytext); return INTEGER;}
+
+[0-9]+											{yylval.IntValue = atoi(yytext); return INTEGER;}
 [0-9]+\.[0-9]+									{yylval.FloatValue = atof(yytext); return FLOATNUMBER;}
 \".*\"											{yylval.StringValue=strdup(yytext);return TEXT;} 
-\'.?\'											{yylval.ChValue=strdup(yytext);return CHARACTER;}
-[a-zA-Z][_a-zA-Z0-9]*							{yylval.ID=strdup(yytext);return IDENTIFIER;} 
-[\t  ]+											;      /*To ignore the white space*/                                            
+\'.?\'											{yylval.CharValue=strdup(yytext);return CHARACTER;}
+[a-zA-Z][_a-zA-Z0-9]*							{yylval.Identifier=strdup(yytext);return IDENTIFIER;} 
+[\t  ]+											;                                                 
 [\n]											{yylineno = yylineno+1;}
-.                                               {yyerror("Wrong_Token");}/*if anything other than the above tokens is entered an error message appears */ 
+.                                               {yyerror("Wrong_Token");} 
 %% 
+
+
+/* calling the main function */
+
 int yywrap (void) {
 	return 1;
 }
