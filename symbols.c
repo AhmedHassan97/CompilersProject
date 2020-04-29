@@ -179,7 +179,6 @@ void DestroyList()
 }
 
 
-//-----------------------------------------------------------------------------------------------------
 QuadNode*TopPtr = NULL;
 void SetQuadriple(int Op, char* Arg1, char* Arg2,char*Result,int ID)
 {
@@ -188,7 +187,7 @@ void SetQuadriple(int Op, char* Arg1, char* Arg2,char*Result,int ID)
 	data->Arg1 = Arg1;
 	data->Arg2 = Arg2;
 	data->Result = Result;
-	InsertQuadruple(data, ID); // insert in list 
+	InsertQuadruple(data, ID);  
 	return ;
 }
 void InsertQuadruple(QuadData*D, int ID)
@@ -204,12 +203,12 @@ void InsertQuadruple(QuadData*D, int ID)
 	}
 	struct QuadNode *Traveler = TopPtr;
 	while (Traveler->Next)
-		Traveler = Traveler->Next;// get last Node
+		Traveler = Traveler->Next;
 	struct QuadNode *mySymbolNode = (struct QuadNode*) malloc(sizeof(struct QuadNode));
 	mySymbolNode->ID = ID;
 	mySymbolNode->DATA = D;
 	mySymbolNode->Next = NULL;
-	Traveler->Next = mySymbolNode; // insert on end "Queue"
+	Traveler->Next = mySymbolNode;
 }
 void PrintQuadList(FILE * f)
 {
@@ -245,7 +244,7 @@ void PrintQuadList(FILE * f)
 		Traveler = Traveler->Next;
 	}
 }
-//-------------------------------------------------------------------Quad Functions
+
 QuadNode*GetTOP()
 {
 	return TopPtr;

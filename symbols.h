@@ -19,11 +19,11 @@ typedef struct Complex {
 
 typedef struct SymbolData
 {
-	int Type;						//type of the token
-	bool Initialized;				//symbol Initilzed a or not 
-	bool Used;						//used or not
-	char * Value;					//representing the value of assigned token
-	char * IdentifierName;			//The name of Varible
+	int Type;						
+	bool Initialized;				
+	bool Used;					
+	char * Value;				
+	char * IdentifierName;		
 }SymbolData;
 
 
