@@ -1,0 +1,25 @@
+ operation: add  first_operand:1  second_operand: 2 result:ExtraSpace0 
+ operation: add  first_operand:ExtraSpace0  second_operand: 3 result:ExtraSpace1 
+ operation: add  first_operand:ExtraSpace1  second_operand: 4 result:ExtraSpace2 
+ operation: add  first_operand:ExtraSpace2  second_operand: 5 result:ExtraSpace3 
+ operation: declare  first_operand:   second_operand:   result:x 
+ operation: assign  first_operand:ExtraSpace3  second_operand:   result:x 
+ operation: add  first_operand:x  second_operand: 6 result:ExtraSpace0 
+ operation: add  first_operand:ExtraSpace0  second_operand: 7 result:ExtraSpace1 
+ operation: add  first_operand:ExtraSpace1  second_operand: 8 result:ExtraSpace2 
+ operation: subtract  first_operand:ExtraSpace2  second_operand: 9 result:ExtraSpace3 
+ operation: subtract  first_operand:ExtraSpace3  second_operand: 10 result:ExtraSpace4 
+ operation: subtract  first_operand:ExtraSpace4  second_operand: 11 result:ExtraSpace5 
+ operation: assign  first_operand:ExtraSpace5  second_operand:   result:x 
+ operation: subtract  first_operand:5  second_operand: 3 result:ExtraSpace6 
+ operation: declare  first_operand:   second_operand:   result:y 
+ operation: assign  first_operand:ExtraSpace6  second_operand:   result:y 
+ operation: multiply  first_operand:1  second_operand: 2 result:ExtraSpace0 
+ operation: multiply  first_operand:ExtraSpace0  second_operand: 3 result:ExtraSpace1 
+ operation: declare  first_operand:   second_operand:   result:z 
+ operation: assign  first_operand:ExtraSpace1  second_operand:   result:z 
+ operation: declare  first_operand:   second_operand:   result:a 
+ operation: divide  first_operand:10  second_operand: 2 result:ExtraSpace0 
+ operation: divide  first_operand:ExtraSpace0  second_operand: 1 result:ExtraSpace1 
+ operation: declare  first_operand:   second_operand:   result:b 
+ operation: assign  first_operand:ExtraSpace1  second_operand:   result:b 

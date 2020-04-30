@@ -1,4 +1,4 @@
-%start compilerstart
+%start startcode
 
 // Semi colon token
 %token SEMICOLON
@@ -105,13 +105,9 @@
 
 %%
 
-    
-    compilerstart:  startcode    ;
 
 
-    startcode:   startcode statement  
-
-                    |   ;
+    startcode:   startcode statement  | ;
 
     statement:  type IDENTIFIER SEMICOLON            
                 {
@@ -122,10 +118,6 @@
                     SetQuadriple(0," "," ",$2,QuadriplesCount++);
                 }
 
-                |   type IDENTIFIER                 
-                {
-                    ThrowError(" Missing Semicolon","");
-                }         
 
                 |   IDENTIFIER ASSIGN expression SEMICOLON
                 {
@@ -258,7 +250,7 @@
                     }
                     else 
                     {
-                        ThrowError("type mismatch in "," addition operands ");
+                        ThrowError("type mismatch "," addition operands ");
                     }
                 }
 
@@ -278,7 +270,7 @@
                     }
                     else 
                     {
-                        ThrowError("type mismatch in "," subtracion operands ");
+                        ThrowError("type mismatch "," subtracion operands ");
                     }
                 }
 
@@ -298,7 +290,7 @@
                     }
                     else 
                     {
-                        ThrowError("type mismatch in "," multiplication operands ");
+                        ThrowError("type mismatch "," multiplication operands ");
                     }
                 }
                 
@@ -318,7 +310,7 @@
                     }
                     else 
                     {
-                        ThrowError("type mismatch in "," division operands ");
+                        ThrowError("type mismatch "," division operands ");
                     }
                 }
                 ;
@@ -437,7 +429,7 @@ char * MergeStrings(char* string1,char*string2)
       char * string3 = (char *) malloc(1 + strlen(string1)+ strlen(string2) );
       strcpy(string3, string1);	  
       strcat(string3, string2);
-	return string3;
+	  return string3;
 }
 
  int main(void) {

@@ -1,0 +1,10 @@
+b of type Integer is Unused
+a of type Integer is Unused
+z of type Integer is Unused
+y of type Integer is Unused
+x of type Integer is Used 
+b of type Integer is initialized
+a of type Integer is not initialized
+z of type Integer is initialized
+y of type Integer is initialized
+x of type Integer is initialized

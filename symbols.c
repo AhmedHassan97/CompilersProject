@@ -249,10 +249,7 @@ QuadNode*GetTOP()
 {
 	return TopPtr;
 }
-Reg CheckReg();
-void SetReg(Reg x);
-void ResetReg();
-Reg reg[7];
+
 
 
 
