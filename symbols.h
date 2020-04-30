@@ -72,4 +72,6 @@ typedef struct QuadNode {
 void InsertQuadruple(QuadData*rD, int ID);
 void SetQuadriple(int Op, char* Arg1, char* Arg2, char*Result, int ID);
 void PrintQuadList(FILE * f);
-QuadNode*GetTOP();
+
+void PrintQuadriples(FILE * f);
+

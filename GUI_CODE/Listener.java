@@ -48,7 +48,7 @@ public class Listener extends MouseAdapter{
                 Runtime rt = Runtime.getRuntime();
                 System.out.println("PATH : " + file.getPath());
                 //Process proc = rt.exec(new String[] {"bash","-c",".././output.out <" + file.getAbsolutePath()});
-                Process proc = rt.exec(new String[] {"cmd","-c","C:\\Users\\Kamel\\Desktop\\Spring 2020\\Compilers\\Project\\Compilers_Project\\compiler.out <" + file.getAbsolutePath()});
+                Process proc = rt.exec(new String[] {"bash","-c","/home/kamel/Desktop/CompilersProject/GUI_CODE/compiler.out <" + file.getAbsolutePath()});
                 BufferedReader stdInput = new BufferedReader(new
                         InputStreamReader(proc.getInputStream()));
 

@@ -1,0 +1,10 @@
+line number: 9 type mismatch  : i is of type Char
+line number: 8 type mismatch  : h is of type String
+line number: 7 type mismatch  : g is of type String
+line number: 7 type mismatch  :  addition operands 
+line number: 6 type mismatch  : f is of type Integer
+line number: 5 type mismatch  : e is of type Char
+line number: 4 type mismatch  : d is of type Bool
+line number: 3 type mismatch  : c is of type String
+line number: 2 type mismatch  : b is of type Float
+line number: 1 type mismatch  : a is of type Integer

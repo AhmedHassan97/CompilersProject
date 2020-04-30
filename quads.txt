@@ -6,7 +6,7 @@
  operation: assign  first_operand:"d"  second_operand:   result:d 
  operation: declare  first_operand:   second_operand:   result:e 
  operation: declare  first_operand:   second_operand:   result:f 
- operation: assign  first_operand:23.  second_operand:   result:f 
+ operation: assign  first_operand:  second_operand:   result:f 
  operation: declare  first_operand:   second_operand:   result:g 
  operation: declare  first_operand:   second_operand:   result:h 
  operation: assign  first_operand:'a'  second_operand:   result:h 

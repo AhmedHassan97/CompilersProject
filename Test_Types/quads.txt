@@ -1,0 +1,15 @@
+ operation: declare  first_operand:   second_operand:   result:a 
+ operation: declare  first_operand:   second_operand:   result:b 
+ operation: assign  first_operand:5  second_operand:   result:b 
+ operation: declare  first_operand:   second_operand:   result:c 
+ operation: declare  first_operand:   second_operand:   result:d 
+ operation: assign  first_operand:"d"  second_operand:   result:d 
+ operation: declare  first_operand:   second_operand:   result:e 
+ operation: declare  first_operand:   second_operand:   result:f 
+ operation: assign  first_operand:  second_operand:   result:f 
+ operation: declare  first_operand:   second_operand:   result:g 
+ operation: declare  first_operand:   second_operand:   result:h 
+ operation: assign  first_operand:'a'  second_operand:   result:h 
+ operation: declare  first_operand:   second_operand:   result:i 
+ operation: declare  first_operand:   second_operand:   result:j 
+ operation: assign  first_operand:TRUE  second_operand:   result:j 

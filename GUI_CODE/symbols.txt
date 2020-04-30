@@ -1,0 +1,20 @@
+j of type Bool is Unused
+i of type Bool is Unused
+h of type Char is Unused
+g of type Char is Unused
+f of type Float is Unused
+e of type Float is Unused
+d of type String is Unused
+c of type String is Unused
+b of type Integer is Unused
+a of type Integer is Unused
+j of type Bool is initialized
+i of type Bool is not initialized
+h of type Char is initialized
+g of type Char is not initialized
+f of type Float is initialized
+e of type Float is not initialized
+d of type String is initialized
+c of type String is not initialized
+b of type Integer is initialized
+a of type Integer is not initialized

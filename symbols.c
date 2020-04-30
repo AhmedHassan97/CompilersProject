@@ -244,12 +244,46 @@ void PrintQuadList(FILE * f)
 		Traveler = Traveler->Next;
 	}
 }
-
-QuadNode*GetTOP()
+void PrintQuadriples(FILE * f)
 {
-	return TopPtr;
-}
+	struct QuadNode *Traveler = TopPtr;
+	char* oper;
+	while (Traveler)
+	{
+		if(Traveler->DATA->operation == 0 )
+		{
+			oper = "DECLARE";
+			fprintf(f, "%s  %s \n", oper, Traveler->DATA->Result);
+		}
+		else if(Traveler->DATA->operation == 1 )
+		{
+			oper = "ASSIGN";
+			fprintf(f, "%s  %s,%s \n", oper, Traveler->DATA->Result, Traveler->DATA->Arg1);
+		}
+		else if(Traveler->DATA->operation == 2 )
+		{
+			oper = "ADD";
+			fprintf(f, "%s  %s,%s,%s \n", oper, Traveler->DATA->Result, Traveler->DATA->Arg1, Traveler->DATA->Arg2);
+		}
+		else if(Traveler->DATA->operation == 3 )
+		{
+			oper = "SUB";
+			fprintf(f, "%s  %s,%s,%s \n", oper, Traveler->DATA->Result, Traveler->DATA->Arg1, Traveler->DATA->Arg2);
+		}
+		else if(Traveler->DATA->operation == 4 )
+		{
+			oper = "MUL";
+			fprintf(f, "%s  %s,%s,%s \n", oper, Traveler->DATA->Result, Traveler->DATA->Arg1, Traveler->DATA->Arg2);
+		}
+		else if(Traveler->DATA->operation == 5 )
+		{
+			oper = "DIV";
+			fprintf(f, "%s  %s,%s,%s \n", oper, Traveler->DATA->Result, Traveler->DATA->Arg1, Traveler->DATA->Arg2);
+		}
 
+		Traveler = Traveler->Next;
+	}
+}
 
 
 

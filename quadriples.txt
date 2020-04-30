@@ -1,0 +1,15 @@
+DECLARE  a 
+DECLARE  b 
+ASSIGN  b,5 
+DECLARE  c 
+DECLARE  d 
+ASSIGN  d,"d" 
+DECLARE  e 
+DECLARE  f 
+ASSIGN  f, 
+DECLARE  g 
+DECLARE  h 
+ASSIGN  h,'a' 
+DECLARE  i 
+DECLARE  j 
+ASSIGN  j,TRUE 

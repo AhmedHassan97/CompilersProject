@@ -410,7 +410,7 @@ bool CheckTypeIdentifier(int LeftType,int RightType)
 
 void ThrowError(char *Message1, char *Message2)
 {
-	fclose(ReadFile);
+
 	ReadFile = fopen("output.txt","a");
  	fprintf(ReadFile, "line number: %d %s : %s\n", yylineno,Message1,Message2);
 	printf("line number: %d %s : %s\n", yylineno,Message1,Message2);
@@ -436,30 +436,31 @@ char * MergeStrings(char* string1,char*string2)
 	
 
 
-	FILE * TestQuad=fopen("quadraples.txt","w");
+	FILE * TestQuad =fopen("quads.txt","w");
+	FILE * quadri =fopen("quadriples.txt","w");
 	SymbolsFile=fopen("symbols.txt","w");
 	if(!yyparse()) {
 		printf("\nParsing complete\n");
 		PrintSymbolTable(SymbolsFile);
 		DestroyList();
 		PrintQuadList(TestQuad);
-		QuadNode*R=GetTOP();
-        fclose(WriteFile);
+		PrintQuadriples(quadri);
+        fclose(quadri);
         fclose(SymbolsFile);
         fclose(TestQuad);
-        fclose(ReadFile);
-        return 0;
+
+        exit(0);
 	}
 	else {
 		printf("\nParsing failed\n %d",yylineno);
-        PrintSymbolTable(SymbolsFile);
+       		PrintSymbolTable(SymbolsFile);
 		DestroyList();
 		PrintQuadList(TestQuad);
-		QuadNode*R=GetTOP();
-        fclose(WriteFile);
+		PrintQuadriples(quadri);
+        fclose(quadri);
         fclose(SymbolsFile);
         fclose(TestQuad);
-        fclose(ReadFile);
+
 		return 0;
 	}
 
